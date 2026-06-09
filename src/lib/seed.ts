@@ -40,10 +40,12 @@ const MATERIALS: MaterialRow[] = [
   { id: 'm9', group: 'Фасады', name: 'Фасад АГТ глянец', unit: 'м²', price: 7600 },
   { id: 'm10', group: 'Столешница', name: 'Столешница кварц 38 мм', unit: 'пог.м', price: 12500 },
   { id: 'm11', group: 'Столешница', name: 'Столешница ЛДСП постформинг 38 мм', unit: 'пог.м', price: 2900 },
-  { id: 'm12', group: 'Фурнитура', name: 'Петля Blum CLIP top с доводчиком', unit: 'шт', price: 420 },
-  { id: 'm13', group: 'Фурнитура', name: 'Направляющие Blum Tandembox', unit: 'компл.', price: 2300 },
-  { id: 'm14', group: 'Фурнитура', name: 'Подъёмник Blum Aventos HF', unit: 'компл.', price: 6800 },
-  { id: 'm15', group: 'Фурнитура', name: 'Ручка-профиль Gola алюминий', unit: 'пог.м', price: 760 },
+  { id: 'm12', group: 'Петли', name: 'Петля Blum CLIP top с доводчиком', unit: 'шт', price: 420 },
+  { id: 'm13', group: 'Петли', name: 'Подъёмник Blum Aventos HF', unit: 'компл.', price: 6800 },
+  { id: 'm14', group: 'Направляющие', name: 'Направляющие Blum Tandembox', unit: 'компл.', price: 2300 },
+  { id: 'm15', group: 'Направляющие', name: 'Ручка-профиль Gola алюминий', unit: 'пог.м', price: 760 },
+  { id: 'm16', group: 'Столешница', name: 'Столешница массив дуба 40 мм', unit: 'пог.м', price: 9800 },
+  { id: 'm17', group: 'Стеновая панель', name: 'Стеновая панель ХДФ под плитку', unit: 'пог.м', price: 1900 },
 ]
 
 const MESSAGES: MessageTemplate[] = [

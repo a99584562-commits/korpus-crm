@@ -216,16 +216,17 @@ export function NumField({
 export function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className={`relative h-6 w-11 shrink-0 rounded-full ring-1 transition-colors duration-300 ease-spring ${
+      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full px-0.5 ring-1 transition-colors duration-300 ease-spring ${
         checked ? 'bg-accent ring-transparent' : 'bg-tray ring-line'
       }`}
     >
       <span
-        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform duration-300 ease-spring ${
-          checked ? 'translate-x-5' : 'translate-x-0.5'
-        }`}
-        style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }}
+        className={`h-5 w-5 rounded-full bg-white transition-transform duration-300 ease-spring ${checked ? 'translate-x-5' : 'translate-x-0'}`}
+        style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.25)' }}
       />
     </button>
   )

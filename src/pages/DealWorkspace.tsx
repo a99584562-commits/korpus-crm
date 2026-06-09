@@ -38,7 +38,7 @@ import {
   fmtDate,
   fmtDateShort,
 } from '../lib/money'
-import type { CategoryDef, Deal, DealStatus, DocKind, LineItem, PartyType, Variant } from '../lib/types'
+import type { CategoryDef, Deal, DealStatus, DocKind, LineItem, MaterialRow, PartyType, Variant } from '../lib/types'
 
 const STATUS_FLOW: DealStatus[] = ['calc', 'contract', 'production', 'installation', 'closed']
 const uid = () => Math.random().toString(36).slice(2, 9)
@@ -301,20 +301,28 @@ function SmetaRow({ deal, variantId, it, cat, editDeal }: { deal: Deal; variantI
 }
 
 // ─────────────────────────  СМЕТА (блочная, с вариантами)  ─────────────────────────
-function CategoryBlock({ deal, variantId, cat, editDeal }: { deal: Deal; variantId: string; cat: CategoryDef; editDeal: EditFn }) {
+function CategoryBlock({ deal, variantId, cat, materials, editDeal }: { deal: Deal; variantId: string; cat: CategoryDef; materials: MaterialRow[]; editDeal: EditFn }) {
+  const [open, setOpen] = useState(false)
   const variant = deal.variants.find((v) => v.id === variantId)
   const rows = (variant?.items ?? []).filter((i) => i.group === cat.name)
   const subtotal = rows.reduce((s, i) => s + itemSum(i), 0)
-  const add = () =>
+
+  const pushItem = (item: LineItem) =>
     editDeal(deal.id, (d) => {
       const v = d.variants.find((x) => x.id === variantId)
-      if (!v) return
-      v.items.push(
-        cat.kind === 'edge'
-          ? { id: uid(), group: cat.name, name: 'Кромка в цвет', detail: '2 мм', qty: 0, unit: cat.unit, price: 95, cost: 40 }
-          : { id: uid(), group: cat.name, name: '', detail: '', qty: 0, unit: cat.unit, price: 0, cost: 0 },
-      )
+      v?.items.push(item)
     })
+  const addBlank = () => {
+    pushItem(
+      cat.kind === 'edge'
+        ? { id: uid(), group: cat.name, name: 'Кромка в цвет', detail: '2 мм', qty: 0, unit: cat.unit, price: 95, cost: 40 }
+        : { id: uid(), group: cat.name, name: '', detail: '', qty: 0, unit: cat.unit, price: 0, cost: 0 },
+    )
+    setOpen(false)
+  }
+  const addMaterial = (m: MaterialRow) =>
+    pushItem({ id: uid(), group: cat.name, name: m.name, detail: cat.kind === 'edge' ? '2 мм' : '', qty: 1, unit: m.unit, price: m.price, cost: Math.round(m.price * 0.55) })
+
   return (
     <div className="border-t border-line first:border-t-0">
       <div className="flex items-center justify-between px-4 pb-1 pt-3">
@@ -325,9 +333,36 @@ function CategoryBlock({ deal, variantId, cat, editDeal }: { deal: Deal; variant
         {subtotal > 0 && <span className="text-[12.5px] font-medium text-ink-soft nums">{fmtRub(subtotal)}</span>}
       </div>
       <div className="px-1.5">{rows.map((it) => <SmetaRow key={it.id} deal={deal} variantId={variantId} it={it} cat={cat} editDeal={editDeal} />)}</div>
-      <button onClick={add} className="mx-2.5 mb-2 ml-4 flex items-center gap-1.5 rounded-lg py-1 text-[12px] font-medium text-muted transition-colors duration-200 hover:text-accent">
-        <Plus size={13} weight="bold" /> строка
-      </button>
+
+      <div className="px-4 pb-2.5 pt-0.5">
+        <button
+          onClick={() => setOpen((o) => !o)}
+          className={`flex items-center gap-1.5 rounded-lg py-1 text-[12px] font-medium transition-colors duration-200 ${open ? 'text-accent' : 'text-muted hover:text-accent'}`}
+        >
+          <Plus size={13} weight="bold" /> добавить позицию
+        </button>
+        {open && (
+          <div className="mt-1.5 overflow-hidden rounded-xl bg-tray/45 ring-1 ring-line" style={{ animation: 'sheet-in 0.35s cubic-bezier(0.32,0.72,0,1) both' }}>
+            <button onClick={addBlank} className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12.5px] font-medium text-ink-soft transition-colors hover:bg-surface">
+              <Plus size={13} /> Пустая строка
+            </button>
+            {materials.length > 0 && <div className="h-px bg-line" />}
+            <div className="max-h-56 overflow-y-auto">
+              {materials.map((m) => (
+                <button key={m.id} onClick={() => addMaterial(m)} className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left transition-colors hover:bg-surface">
+                  <span className="truncate text-[13px] text-ink">{m.name}</span>
+                  <span className="shrink-0 text-[12px] font-medium text-muted nums">{fmtRub(m.price)}/{m.unit}</span>
+                </button>
+              ))}
+            </div>
+            {materials.length === 0 && (
+              <p className="px-3 pb-2.5 pt-1 text-[11.5px] leading-relaxed text-muted">
+                Каталог «{cat.name}» пуст. Добавьте материалы в Настройки → Каталог материалов — и они появятся здесь.
+              </p>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -407,7 +442,7 @@ function SmetaTab({ deal, editDeal }: { deal: Deal; editDeal: EditFn }) {
           <span className="w-6" />
         </div>
         {cats.map((cat) => (
-          <CategoryBlock key={cat.id} deal={deal} variantId={variantId} cat={cat} editDeal={editDeal} />
+          <CategoryBlock key={cat.id} deal={deal} variantId={variantId} cat={cat} materials={settings.materials.filter((m) => m.group === cat.name)} editDeal={editDeal} />
         ))}
         {other.length > 0 && (
           <div className="border-t border-line">
