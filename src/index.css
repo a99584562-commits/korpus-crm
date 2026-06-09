@@ -1,0 +1,201 @@
+@import 'tailwindcss';
+
+/* ───────────────────────────  Design tokens  ─────────────────────────── */
+/* Tailwind v4: map utility colors to live CSS variables so the accent can be
+   re-themed at runtime from the admin panel (white-label).                 */
+@theme inline {
+  --font-display: var(--f-display);
+  --font-sans: var(--f-sans);
+
+  --color-bg: var(--c-bg);
+  --color-tray: var(--c-tray);
+  --color-surface: var(--c-surface);
+  --color-ink: var(--c-ink);
+  --color-ink-soft: var(--c-ink-soft);
+  --color-muted: var(--c-muted);
+  --color-accent: var(--c-accent);
+  --color-accent-ink: var(--c-accent-ink);
+  --color-accent-soft: var(--c-accent-soft);
+  --color-sage: var(--c-sage);
+  --color-positive: var(--c-positive);
+  --color-positive-soft: var(--c-positive-soft);
+  --color-warning: var(--c-warning);
+  --color-warning-soft: var(--c-warning-soft);
+  --color-danger: var(--c-danger);
+  --color-danger-soft: var(--c-danger-soft);
+  --color-line: var(--c-line);
+  --color-line-strong: var(--c-line-strong);
+
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+}
+
+:root {
+  /* Fonts as real custom properties so var(--font-*) works in inline styles */
+  --f-display: 'Fraunces', ui-serif, Georgia, serif;
+  --f-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--f-display);
+  --font-sans: var(--f-sans);
+
+  /* Editorial-luxury, warm furniture palette */
+  --c-bg: #faf7f1;
+  --c-tray: #efe9dd;
+  --c-surface: #ffffff;
+  --c-ink: #221d17;
+  --c-ink-soft: #5e564b;
+  --c-muted: #9c9284;
+  --c-accent: #a8612f; /* cognac / wood — re-themed from admin */
+  --c-accent-ink: #ffffff;
+  --c-accent-soft: color-mix(in srgb, var(--c-accent) 13%, #ffffff);
+  --c-sage: #5e6b5a;
+  --c-positive: #5b7a5b;
+  --c-positive-soft: color-mix(in srgb, var(--c-positive) 14%, #ffffff);
+  --c-warning: #b4892e;
+  --c-warning-soft: color-mix(in srgb, var(--c-warning) 16%, #ffffff);
+  --c-danger: #ab4f37;
+  --c-danger-soft: color-mix(in srgb, var(--c-danger) 13%, #ffffff);
+  --c-line: color-mix(in srgb, var(--c-ink) 9%, transparent);
+  --c-line-strong: color-mix(in srgb, var(--c-ink) 15%, transparent);
+}
+
+/* ───────────────────────────  Base layer  ─────────────────────────── */
+@layer base {
+  * {
+    border-color: var(--c-line);
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background-color: var(--c-bg);
+    color: var(--c-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: 'ss01', 'cv01';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--c-accent) 22%, transparent);
+    color: var(--c-ink);
+  }
+  /* Tabular figures for all money / numeric data */
+  .nums {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+  /* Film-grain — fixed, pointer-events none, never on scroll containers */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Slim, warm scrollbars */
+  ::-webkit-scrollbar { width: 11px; height: 11px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--c-ink) 16%, transparent);
+    border-radius: 99px;
+    border: 3px solid var(--c-bg);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--c-ink) 26%, transparent);
+  }
+}
+
+/* ───────────────────────────  Utilities  ─────────────────────────── */
+@layer utilities {
+  /* Inset top highlight for the "machined hardware" bezel look */
+  .bezel-hi {
+    box-shadow: inset 0 1px 0 0 color-mix(in srgb, #ffffff 60%, transparent);
+  }
+  /* Heavy, highly-diffused ambient lift — the only allowed "shadow", soft + warm */
+  .lift {
+    box-shadow:
+      0 1px 2px -1px color-mix(in srgb, var(--c-ink) 10%, transparent),
+      0 18px 40px -24px color-mix(in srgb, var(--c-ink) 22%, transparent);
+  }
+  .lift-lg {
+    box-shadow:
+      0 2px 4px -2px color-mix(in srgb, var(--c-ink) 12%, transparent),
+      0 40px 80px -40px color-mix(in srgb, var(--c-ink) 30%, transparent);
+  }
+  .ease-spring {
+    transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  }
+}
+
+/* Entry animation — gentle, heavy fade-up used across views */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); filter: blur(6px); }
+  to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+}
+.rise {
+  animation: rise 0.7s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-5px); }
+  40%, 60% { transform: translateX(5px); }
+}
+.shake { animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+
+@keyframes overlay-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sheet-in {
+  from { opacity: 0; transform: translateY(24px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ───────────────────────────  Print → real PDF  ─────────────────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  body::before {
+    display: none !important;
+  } /* grain */
+  /* Hide the whole app, reveal only the active document sheet */
+  body * {
+    visibility: hidden !important;
+  }
+  #print-area,
+  #print-area * {
+    visibility: visible !important;
+  }
+  #print-area {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
