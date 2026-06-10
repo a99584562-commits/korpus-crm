@@ -161,6 +161,11 @@
 }
 
 /* ───────────────────────────  Print → real PDF  ─────────────────────────── */
+/* Печатная копия документа рендерится порталом в #print-root (вне fixed-модалки),
+   иначе fixed-оверлей повторяется на каждой печатной странице → дубли. */
+#print-root {
+  display: none;
+}
 @media print {
   @page {
     size: A4;
@@ -173,25 +178,11 @@
   body::before {
     display: none !important;
   } /* grain */
-  /* Hide the whole app, reveal only the active document sheet */
-  body * {
-    visibility: hidden !important;
+  #root {
+    display: none !important;
   }
-  #print-area,
-  #print-area * {
-    visibility: visible !important;
-  }
-  #print-area {
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
+  #print-root {
+    display: block !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }

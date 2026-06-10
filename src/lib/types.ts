@@ -175,6 +175,9 @@ export interface Settings {
   holidays: string[] // нерабочие дни (ISO) для расчёта даты готовности
   materials: MaterialRow[]
   messages: MessageTemplate[]
+  // Конструктор документов: id секции → текст с масками {{...}}.
+  // Опционально: для незаполненных секций берётся стандартный текст.
+  docTemplates?: Record<string, string>
 }
 
 export type Route =
@@ -183,7 +186,7 @@ export type Route =
   | { name: 'deal'; id: string }
   | { name: 'admin'; tab?: AdminTab }
 
-export type AdminTab = 'brand' | 'company' | 'blocks' | 'materials' | 'messages' | 'reminders' | 'refs' | 'integrations'
+export type AdminTab = 'brand' | 'company' | 'blocks' | 'materials' | 'messages' | 'docs' | 'reminders' | 'refs' | 'integrations'
 
 export interface Toast {
   id: string

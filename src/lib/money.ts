@@ -129,6 +129,38 @@ export function computeReminders(deals: Deal[], settings: Settings, today: Date 
   return out.sort((a, b) => a.triggerDate.localeCompare(b.triggerDate))
 }
 
+// ──────────────────────────  Маски конструктора документов  ──────────────────────────
+// Подставляет данные расчёта в шаблон секции документа.
+export function mergeDocTemplate(tpl: string, d: Deal, s: Settings): string {
+  const v = mainVariant(d)
+  const total = dealRevenue(d)
+  const newAmount = d.allonge?.newAmount && d.allonge.newAmount > 0 ? d.allonge.newAmount : total
+  const withInstall = !!v.delivery?.enabled
+  return tpl
+    .replaceAll('{{number}}', d.number)
+    .replaceAll('{{date}}', fmtDate(d.date))
+    .replaceAll('{{client}}', d.client.name || '—')
+    .replaceAll('{{address}}', d.client.installAddress || '—')
+    .replaceAll('{{total}}', fmtRub2(total))
+    .replaceAll('{{totalWords}}', summaPropisyu(total).toLowerCase())
+    .replaceAll('{{newTotal}}', fmtRub2(newAmount))
+    .replaceAll('{{newTotalWords}}', summaPropisyu(newAmount).toLowerCase())
+    .replaceAll('{{days}}', String(d.productionDays))
+    .replaceAll('{{readyDate}}', fmtDate(readinessDate(d, s.holidays || [])))
+    .replaceAll('{{designer}}', d.designer)
+    .replaceAll('{{manager}}', s.brand.manager)
+    .replaceAll('{{brand}}', s.brand.name)
+    .replaceAll('{{company}}', s.company.legalName)
+    .replaceAll('{{city}}', s.brand.city)
+    .replaceAll('{{delivery}}', withInstall ? ', выполнить доставку и монтаж' : '')
+    .replaceAll('{{readyMode}}', withInstall ? 'к монтажу' : 'к выдаче')
+    .replaceAll('{{readyAction}}', withInstall ? 'монтажа' : 'получения')
+    .replaceAll('{{defects}}', d.actParams?.defects || '—')
+    .replaceAll('{{compensation}}', fmtRub2(d.actParams?.compensation || 0))
+    .replaceAll('{{refund}}', fmtRub2(d.actParams?.refund || 0))
+    .replaceAll('{{additions}}', d.actParams?.additions || '—')
+}
+
 // ──────────────────────────  Сумма прописью (порт из Apps Script)  ──────────────────────────
 
 export function summaPropisyu(value: number): string {

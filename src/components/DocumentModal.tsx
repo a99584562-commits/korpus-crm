@@ -1,8 +1,9 @@
+import { createPortal } from 'react-dom'
 import { X, PaperPlaneTilt, DownloadSimple, ChatCircleDots, EnvelopeSimple } from '@phosphor-icons/react'
 import { useApp } from '../lib/store'
-import { DOCS } from '../lib/seed'
+import { DOCS, getDocTpl } from '../lib/seed'
 import type { Deal, DocKind, Settings } from '../lib/types'
-import { dealRevenue, mainVariant, fmtRub2, fmtDate, itemSum, summaPropisyu } from '../lib/money'
+import { dealRevenue, mainVariant, mergeDocTemplate, fmtRub2, fmtDate, itemSum, summaPropisyu } from '../lib/money'
 
 function nextPayment(d: Deal) {
   return d.payments.find((p) => !p.paid) ?? d.payments[d.payments.length - 1]
@@ -75,7 +76,6 @@ function companyLines(s: Settings): string[] {
 function ContractDoc({ d, s }: { d: Deal; s: Settings }) {
   const total = dealRevenue(d)
   const v = mainVariant(d)
-  const withInstall = !!v.delivery?.enabled
   return (
     <>
       <p className="text-center text-[12px] uppercase tracking-[0.3em] text-black/40">{s.company.legalName}</p>
@@ -92,9 +92,7 @@ function ContractDoc({ d, s }: { d: Deal; s: Settings }) {
       </div>
 
       <p className="mt-5 text-[13px] leading-relaxed text-black/70">
-        <b>1. Предмет договора.</b> Исполнитель обязуется изготовить корпусную мебель по индивидуальному заказу
-        согласно Спецификации (Приложение №1){withInstall ? ', выполнить доставку и монтаж' : ''}, а Заказчик —
-        принять и оплатить изделие. Срок изготовления — {d.productionDays} рабочих дней.
+        <b>1. Предмет договора.</b> {mergeDocTemplate(getDocTpl(s, 'contract_subject'), d, s)}
       </p>
 
       <p className="mt-4 mb-1.5 text-[12px] font-semibold uppercase tracking-wider text-black/45">
@@ -170,26 +168,29 @@ function ContractDoc({ d, s }: { d: Deal; s: Settings }) {
           <div className="mt-7 border-t border-black/30 pt-1 text-black/60">{d.client.name}</div>
         </div>
       </div>
-      {/* Приложение №2 — Правила эксплуатации */}
+      {/* Приложение №2 — Правила эксплуатации (текст из конструктора документов) */}
       <div className="mt-10 border-t border-black/10 pt-6" style={{ breakBefore: 'page' }}>
         <p className="text-[12px] font-semibold uppercase tracking-wider text-black/45">Приложение №2 · Правила эксплуатации</p>
         <ol className="mt-2 ml-4 list-decimal space-y-1 text-[12.5px] leading-relaxed text-black/70">
-          <li>Эксплуатировать изделие при влажности 45–70% и температуре +10…+30 °C, избегая прямого контакта с водой и паром.</li>
-          <li>Не размещать нагревательные приборы ближе 30 см к фасадам и корпусу.</li>
-          <li>Беречь поверхности от абразивов, растворителей и спиртосодержащих средств.</li>
-          <li>Регулировку петель и направляющих производить не реже одного раза в год.</li>
-          <li>Максимальная нагрузка на полку — 15 кг, на выдвижной ящик — 25 кг.</li>
+          {getDocTpl(s, 'contract_rules')
+            .split('\n')
+            .filter((l) => l.trim())
+            .map((line, i) => (
+              <li key={i}>{mergeDocTemplate(line, d, s)}</li>
+            ))}
         </ol>
       </div>
 
-      {/* Приложение №3 — Памятка по уходу */}
+      {/* Приложение №3 — Памятка по уходу (текст из конструктора документов) */}
       <div className="mt-8 border-t border-black/10 pt-6" style={{ breakBefore: 'page' }}>
         <p className="text-[12px] font-semibold uppercase tracking-wider text-black/45">Приложение №3 · Памятка по уходу</p>
         <ul className="mt-2 ml-4 list-disc space-y-1 text-[12.5px] leading-relaxed text-black/70">
-          <li>Протирать поверхности мягкой влажной тканью, насухо вытирая после уборки.</li>
-          <li>Для глянцевых и эмалевых фасадов использовать специальные неабразивные средства.</li>
-          <li>Своевременно удалять пролитую жидкость с торцов и кромок.</li>
-          <li>Гарантия — 18 месяцев при соблюдении правил эксплуатации.</li>
+          {getDocTpl(s, 'contract_care')
+            .split('\n')
+            .filter((l) => l.trim())
+            .map((line, i) => (
+              <li key={i}>{mergeDocTemplate(line, d, s)}</li>
+            ))}
         </ul>
         <p className="mt-4 text-[12px] text-black/45">С правилами эксплуатации и памяткой ознакомлен:</p>
         <div className="mt-6 border-t border-black/30 pt-1 text-[12.5px] text-black/60">{d.client.name}</div>
@@ -248,9 +249,7 @@ const ACT_TITLES: Partial<Record<DocKind, string>> = {
 }
 
 function ActDoc({ d, s, kind }: { d: Deal; s: Settings; kind: DocKind }) {
-  const total = dealRevenue(d)
   const title = ACT_TITLES[kind] || 'Документ'
-  const withInstall = !!mainVariant(d).delivery?.enabled
   return (
     <>
       <p className="text-center text-[12px] uppercase tracking-[0.3em] text-black/40">{s.company.legalName}</p>
@@ -277,25 +276,16 @@ function ActDoc({ d, s, kind }: { d: Deal; s: Settings; kind: DocKind }) {
             </ul>
           ) : null}
           {d.allonge?.text ? <p className="mt-2">{d.allonge.text}</p> : null}
-          <p className="mt-2">
-            Новая итоговая стоимость составляет <b>{fmtRub2(d.allonge?.newAmount || total)}</b> (
-            {summaPropisyu(d.allonge?.newAmount || total).toLowerCase()}). Остальные условия договора остаются неизменными.
-          </p>
+          <p className="mt-2">{mergeDocTemplate(getDocTpl(s, 'allonge_final'), d, s)}</p>
         </div>
       ) : kind === 'notice' ? (
         <div className="mt-5 text-[13px] leading-relaxed text-black/70">
-          <p>
-            Уведомляем, что изделие по договору № {d.number} готово{withInstall ? ' к монтажу' : ' к выдаче'}. Просим согласовать
-            дату {withInstall ? 'монтажа' : 'получения'} по адресу: {d.client.installAddress}.
-          </p>
+          <p>{mergeDocTemplate(getDocTpl(s, 'notice_body'), d, s)}</p>
           {d.actParams?.additions ? <p className="mt-2">Дополнительно требуется: {d.actParams.additions}.</p> : null}
         </div>
       ) : (
         <div className="mt-5 text-[13px] leading-relaxed text-black/70">
-          <p>
-            Исполнитель сдал, а Заказчик принял {kind === 'act_install' ? 'монтажные работы' : 'изделие'} по договору № {d.number} по
-            адресу: {d.client.installAddress}. Стоимость — <b>{fmtRub2(total)}</b>.
-          </p>
+          <p>{mergeDocTemplate(getDocTpl(s, `${kind}_body`), d, s)}</p>
           {d.actParams?.defects ? (
             <p className="mt-2">
               Выявленные недостатки: {d.actParams.defects}.
@@ -303,10 +293,7 @@ function ActDoc({ d, s, kind }: { d: Deal; s: Settings; kind: DocKind }) {
               {d.actParams.refund > 0 ? ` Сумма возврата — ${fmtRub2(d.actParams.refund)}.` : ''}
             </p>
           ) : (
-            <p className="mt-2">
-              Претензий по качеству и срокам стороны не имеют
-              {kind === 'act_unilateral' ? '. Акт составлен в одностороннем порядке в связи с уклонением Заказчика от приёмки.' : '.'}
-            </p>
+            kind !== 'act_unilateral' && <p className="mt-2">Претензий по качеству и срокам стороны не имеют.</p>
           )}
         </div>
       )}
@@ -337,6 +324,14 @@ export function DocumentModal() {
   const msgTpl = pickMessage(doc.kind, settings)
   const merged = msgTpl ? mergeMessage(msgTpl.body, deal, settings, meta.title) : ''
 
+  const sheetBody = (
+    <>
+      {doc.kind === 'contract' && <ContractDoc d={deal} s={settings} />}
+      {doc.kind === 'pko' && <PkoDoc d={deal} s={settings} />}
+      {doc.kind !== 'contract' && doc.kind !== 'pko' && <ActDoc d={deal} s={settings} kind={doc.kind} />}
+    </>
+  )
+
   return (
     <div
       className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-ink/40 p-4 backdrop-blur-md sm:p-8"
@@ -358,7 +353,13 @@ export function DocumentModal() {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => window.print()}
+              onClick={() => {
+                // Имя PDF в диалоге печати = заголовок вкладки
+                const prev = document.title
+                document.title = `${meta.title} №${deal.number}`
+                window.print()
+                setTimeout(() => { document.title = prev }, 500)
+              }}
               className="inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-[13px] font-medium text-ink-soft transition-all duration-300 ease-spring hover:bg-tray active:scale-95"
             >
               <DownloadSimple size={16} /> Скачать PDF
@@ -391,13 +392,19 @@ export function DocumentModal() {
         )}
 
         {/* A4 sheet */}
-        <div id="print-area" className="rounded-2xl bg-white px-9 py-10 ring-1 ring-line lift-lg sm:px-14 sm:py-14" style={{ fontFamily: 'Georgia, "PT Serif", serif' }}>
-          {doc.kind === 'contract' && <ContractDoc d={deal} s={settings} />}
-          {doc.kind === 'pko' && <PkoDoc d={deal} s={settings} />}
-          {doc.kind !== 'contract' && doc.kind !== 'pko' && <ActDoc d={deal} s={settings} kind={doc.kind} />}
+        <div className="rounded-2xl bg-white px-9 py-10 ring-1 ring-line lift-lg sm:px-14 sm:py-14" style={{ fontFamily: 'Georgia, "PT Serif", serif' }}>
+          {sheetBody}
         </div>
         <div className="h-6" />
       </div>
+
+      {/* Печатная копия вне fixed-оверлея: только она уходит в PDF, без дублей страниц */}
+      {createPortal(
+        <div id="print-root" style={{ fontFamily: 'Georgia, "PT Serif", serif' }}>
+          {sheetBody}
+        </div>,
+        document.body,
+      )}
     </div>
   )
 }

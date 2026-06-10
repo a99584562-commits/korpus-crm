@@ -10,6 +10,7 @@ import {
   BookOpen,
   CalendarBlank,
   IdentificationCard,
+  FileText,
   Plus,
   Trash,
   Check,
@@ -18,6 +19,7 @@ import {
 } from '@phosphor-icons/react'
 import { useApp } from '../lib/store'
 import { Btn, Card, Eyebrow, Field, Input, NumField, Textarea, Toggle, Badge, IconBtn, Divider } from '../components/ui'
+import { DOC_SECTIONS, DOC_TPL_DEFAULTS, getDocTpl } from '../lib/seed'
 import type { AdminTab, Settings } from '../lib/types'
 
 const uid = () => Math.random().toString(36).slice(2, 9)
@@ -37,6 +39,7 @@ const TABS: { key: AdminTab; label: string; icon: typeof Palette }[] = [
   { key: 'blocks', label: 'Блоки сметы', icon: Rows },
   { key: 'materials', label: 'Каталог материалов', icon: Stack },
   { key: 'messages', label: 'Шаблоны сообщений', icon: ChatCircleDots },
+  { key: 'docs', label: 'Конструктор документов', icon: FileText },
   { key: 'reminders', label: 'Напоминания', icon: BellRinging },
   { key: 'refs', label: 'Справочники', icon: BookOpen },
   { key: 'integrations', label: 'Интеграции', icon: PlugsConnected },
@@ -87,6 +90,7 @@ export function Admin() {
           {tab === 'blocks' && <BlocksTab {...props} />}
           {tab === 'materials' && <MaterialsTab {...props} />}
           {tab === 'messages' && <MessagesTab {...props} />}
+          {tab === 'docs' && <DocTemplatesTab {...props} />}
           {tab === 'reminders' && <RemindersTab {...props} />}
           {tab === 'refs' && <RefsTab {...props} />}
           {tab === 'integrations' && <IntegrationsTab {...props} />}
@@ -346,6 +350,68 @@ function RemindersTab({ settings, edit }: TabProps) {
         дизайнеру приходит контрольное сообщение.
       </div>
     </Card>
+  )
+}
+
+// ─────────── Конструктор документов ───────────
+const DOC_MASKS = [
+  '{{number}}', '{{date}}', '{{client}}', '{{address}}', '{{total}}', '{{totalWords}}',
+  '{{days}}', '{{readyDate}}', '{{delivery}}', '{{readyMode}}', '{{readyAction}}',
+  '{{defects}}', '{{compensation}}', '{{refund}}', '{{additions}}', '{{newTotal}}', '{{newTotalWords}}',
+  '{{designer}}', '{{manager}}', '{{brand}}', '{{company}}', '{{city}}',
+]
+
+function DocTemplatesTab({ settings, edit }: TabProps) {
+  return (
+    <div className="space-y-4">
+      <Card className="p-5">
+        <p className="text-[13px] font-medium text-ink">Маски из функционала расчёта</p>
+        <p className="mt-1 text-[12px] text-muted">
+          Вставляйте в любой текст ниже — при формировании документа подставятся данные сделки: суммы, даты, недостатки, реквизиты.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {DOC_MASKS.map((m) => (
+            <span key={m} className="rounded-lg bg-accent-soft/70 px-2 py-1 font-mono text-[11.5px] text-accent">
+              {m}
+            </span>
+          ))}
+        </div>
+      </Card>
+
+      {DOC_SECTIONS.map((sec) => {
+        const value = getDocTpl(settings, sec.id)
+        const isCustom = settings.docTemplates?.[sec.id] !== undefined && settings.docTemplates[sec.id] !== DOC_TPL_DEFAULTS[sec.id]
+        return (
+          <Card key={sec.id} className="p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h4 className="text-[15px] font-medium text-ink">{sec.title}</h4>
+              <div className="flex items-center gap-2">
+                {sec.hint && <Badge tone="neutral">{sec.hint}</Badge>}
+                {isCustom && (
+                  <button
+                    onClick={() => edit((s) => { if (s.docTemplates) delete s.docTemplates[sec.id] })}
+                    className="rounded-full px-2.5 py-1 text-[11.5px] font-medium text-muted transition-colors hover:bg-tray hover:text-ink"
+                  >
+                    ↺ стандартный текст
+                  </button>
+                )}
+              </div>
+            </div>
+            <Textarea
+              className="mt-3 font-mono !text-[12.5px]"
+              rows={sec.rows}
+              value={value}
+              onChange={(e) =>
+                edit((s) => {
+                  if (!s.docTemplates) s.docTemplates = {}
+                  s.docTemplates[sec.id] = e.target.value
+                })
+              }
+            />
+          </Card>
+        )
+      })}
+    </div>
   )
 }
 
