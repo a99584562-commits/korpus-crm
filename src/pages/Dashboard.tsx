@@ -2,7 +2,7 @@ import { ArrowUpRight, TrendUp, Wallet, BellRinging, CalendarBlank, Stack, Paper
 import { useApp } from '../lib/store'
 import { Bezel, Btn, Card, Eyebrow, Badge } from '../components/ui'
 import { STATUS_META } from '../components/ui'
-import { dealRevenue, dealProfit, dealMargin, dealDue, fmtRub, fmtDateShort, computeReminders } from '../lib/money'
+import { dealRevenue, dealProfit, dealMargin, dealDue, fmtRub, fmtDateShort, computeReminders, plural } from '../lib/money'
 import type { DealStatus } from '../lib/types'
 
 const STATUS_ORDER: DealStatus[] = ['calc', 'contract', 'production', 'installation', 'closed']
@@ -41,7 +41,8 @@ export function Dashboard() {
             {greet}, {settings.brand.manager.split(' ')[1] || settings.brand.manager}
           </h1>
           <p className="mt-1 text-[14px] text-muted">
-            {new Date().toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' })} · в работе {active.length} сделок
+            {new Date().toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' })} · в работе {active.length}{' '}
+            {plural(active.length, ['расчёт', 'расчёта', 'расчётов'])}
           </p>
         </div>
         <Btn onClick={createDeal} trailing={<ArrowUpRight size={14} />}>
@@ -80,7 +81,7 @@ export function Dashboard() {
           <button onClick={() => navigate({ name: 'deals' })} className="group flex h-full w-full flex-col p-6 text-left">
             <div className="flex items-center justify-between text-muted">
               <span className="flex items-center gap-2 text-[13px] font-medium">
-                <Stack size={18} /> Активные сделки
+                <Stack size={18} /> Активные расчёты
               </span>
               <ArrowUpRight size={16} className="text-muted transition-transform duration-300 ease-spring group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </div>
@@ -108,7 +109,7 @@ export function Dashboard() {
               {dueCount}
             </p>
             <p className="mt-auto pt-5 text-[12px] leading-relaxed text-muted">
-              авто-контроль оплат включён для {dueSoon} сделок
+              авто-контроль оплат включён для {dueSoon} {plural(dueSoon, ['расчёта', 'расчётов', 'расчётов'])}
             </p>
           </div>
         </Card>

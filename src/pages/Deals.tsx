@@ -44,8 +44,8 @@ export function Deals() {
     <div className="rise mx-auto max-w-[1320px] px-5 py-8 sm:px-8 sm:py-10">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <Eyebrow className="-ml-3">База сделок</Eyebrow>
-          <h1 className="mt-1 text-[34px] leading-tight text-ink sm:text-[40px]">Сделки</h1>
+          <Eyebrow className="-ml-3">База расчётов</Eyebrow>
+          <h1 className="mt-1 text-[34px] leading-tight text-ink sm:text-[40px]">Расчёты</h1>
         </div>
         <Btn onClick={createDeal} trailing={<Plus size={14} weight="bold" />}>
           Новый расчёт

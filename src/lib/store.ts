@@ -120,7 +120,7 @@ export const useApp = create<AppState>()(
         copy.mainVariantId = copy.variants[0].id
         copy.payments = copy.payments.map((p) => ({ ...p, id: uid(), paid: false, clientReminded: false, designerChecked: false }))
         set((s) => ({ deals: [copy, ...s.deals], route: { name: 'deal', id: copy.id } }))
-        get().toast({ kind: 'info', title: 'Сделка дублирована', detail: 'Создана новая сделка' })
+        get().toast({ kind: 'info', title: 'Расчёт дублирован', detail: 'Создана независимая копия' })
       },
 
       archiveDeal: (id) => {
@@ -128,7 +128,7 @@ export const useApp = create<AppState>()(
           d.archived = true
           d.status = 'closed'
         })
-        get().toast({ kind: 'success', title: 'Сделка закрыта и заархивирована' })
+        get().toast({ kind: 'success', title: 'Расчёт закрыт и заархивирован' })
       },
 
       // «Договор подписан» — заморозка даты, генерация пакета, отправка, запуск в работу (renameAndMoveTable)

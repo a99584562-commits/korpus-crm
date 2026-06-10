@@ -65,7 +65,7 @@ export function Sidebar() {
 
       <nav className="flex flex-col gap-1">
         <NavItem icon={<SquaresFour size={20} />} label="Дашборд" active={is('dashboard')} onClick={() => navigate({ name: 'dashboard' })} />
-        <NavItem icon={<Stack size={20} />} label="Сделки" active={is('deals') || is('deal')} onClick={() => navigate({ name: 'deals' })} />
+        <NavItem icon={<Stack size={20} />} label="Расчёты" active={is('deals') || is('deal')} onClick={() => navigate({ name: 'deals' })} />
         <NavItem icon={<GearSix size={20} />} label="Настройки" active={is('admin')} onClick={() => navigate({ name: 'admin' })} />
       </nav>
 

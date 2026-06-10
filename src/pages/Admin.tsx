@@ -215,7 +215,7 @@ function BlocksTab({ settings, edit }: TabProps) {
 
       <Card className="p-6">
         <h3 className="text-[18px] text-ink">Пороги оплаты</h3>
-        <p className="mt-1 text-[13px] text-muted">Сколько % суммы нужно внести. Считается автоматически в карточке сделки.</p>
+        <p className="mt-1 text-[13px] text-muted">Сколько % суммы нужно внести. Считается автоматически в карточке расчёта.</p>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Для заключения договора">
             <NumField value={settings.commercial.signPercent} onChange={(n) => edit((s) => { s.commercial.signPercent = Math.max(0, Math.min(100, n)) })} suffix="%" align="right" />
@@ -228,7 +228,7 @@ function BlocksTab({ settings, edit }: TabProps) {
 
       <Card className="p-6">
         <h3 className="text-[18px] text-ink">Типы изменений для допсоглашения</h3>
-        <p className="mt-1 text-[13px] text-muted">Чекбоксы, доступные в карточке сделки на вкладке «Документы».</p>
+        <p className="mt-1 text-[13px] text-muted">Чекбоксы, доступные в карточке расчёта на вкладке «Документы».</p>
         <div className="mt-3 flex flex-wrap gap-1.5">
           {settings.allongeTypes.map((t, i) => (
             <span key={t + i} className="flex items-center gap-1.5 rounded-full bg-tray/60 py-1.5 pl-3 pr-1.5 text-[12.5px] text-ink-soft">
@@ -345,7 +345,7 @@ function RemindersTab({ settings, edit }: TabProps) {
         </Field>
       </div>
       <div className="mt-5 rounded-2xl bg-tray/40 px-4 py-3 text-[12.5px] leading-relaxed text-ink-soft ring-1 ring-line">
-        <b>Как это работает:</b> ежедневно в {r.hour}:00 система проверяет график платежей всех сделок. Если до платежа осталось{' '}
+        <b>Как это работает:</b> ежедневно в {r.hour}:00 система проверяет график платежей всех расчётов. Если до платежа осталось{' '}
         {r.clientDaysBefore} дн. — клиенту уходит напоминание в VK или на e-mail. Через {r.designerDaysAfter} дн. после даты —
         дизайнеру приходит контрольное сообщение.
       </div>
@@ -367,7 +367,7 @@ function DocTemplatesTab({ settings, edit }: TabProps) {
       <Card className="p-5">
         <p className="text-[13px] font-medium text-ink">Маски из функционала расчёта</p>
         <p className="mt-1 text-[12px] text-muted">
-          Вставляйте в любой текст ниже — при формировании документа подставятся данные сделки: суммы, даты, недостатки, реквизиты.
+          Вставляйте в любой текст ниже — при формировании документа подставятся данные расчёта: суммы, даты, недостатки, реквизиты.
         </p>
         <div className="mt-3 flex flex-wrap gap-1.5">
           {DOC_MASKS.map((m) => (

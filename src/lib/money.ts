@@ -12,6 +12,16 @@ const rubFine = new Intl.NumberFormat('ru-RU', {
 })
 
 export const fmtRub = (n: number): string => rub.format(Math.round(n || 0))
+
+// Склонение: plural(4, ['расчёт','расчёта','расчётов']) → «расчёта»
+export const plural = (n: number, forms: [string, string, string]): string => {
+  const a = Math.abs(n) % 100
+  const b = a % 10
+  if (a > 10 && a < 20) return forms[2]
+  if (b > 1 && b < 5) return forms[1]
+  if (b === 1) return forms[0]
+  return forms[2]
+}
 export const fmtRub2 = (n: number): string => rubFine.format(n || 0) + ' ₽'
 export const fmtNum = (n: number): string => new Intl.NumberFormat('ru-RU').format(Math.round(n || 0))
 

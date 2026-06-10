@@ -67,9 +67,9 @@ export function DealWorkspace({ id }: { id: string }) {
   if (!deal) {
     return (
       <div className="mx-auto max-w-md px-6 py-24 text-center">
-        <p className="text-muted">Сделка не найдена.</p>
+        <p className="text-muted">Расчёт не найден.</p>
         <Btn className="mt-4" variant="soft" onClick={() => navigate({ name: 'deals' })}>
-          К списку сделок
+          К списку расчётов
         </Btn>
       </div>
     )
@@ -160,7 +160,7 @@ export function DealWorkspace({ id }: { id: string }) {
 
           {/* Stage */}
           <Card className="p-5">
-            <p className="mb-3 text-[13px] font-medium text-muted">Этап сделки</p>
+            <p className="mb-3 text-[13px] font-medium text-muted">Этап расчёта</p>
             <div className="flex flex-col gap-1.5">
               {STATUS_FLOW.map((st) => {
                 const activeIdx = STATUS_FLOW.indexOf(deal.status)
@@ -200,10 +200,10 @@ export function DealWorkspace({ id }: { id: string }) {
                 leading={<CheckCircle size={15} weight="fill" />}
                 onClick={() => {
                   editDeal(deal.id, (d) => { d.status = 'closed'; d.archived = true })
-                  toast({ kind: 'success', title: 'Сделка закрыта', detail: 'Перенесена в архив' })
+                  toast({ kind: 'success', title: 'Расчёт закрыт', detail: 'Перенесён в архив' })
                 }}
               >
-                Закрыть сделку
+                Закрыть расчёт
               </Btn>
             )}
           </Card>
@@ -223,7 +223,7 @@ export function DealWorkspace({ id }: { id: string }) {
                   Дизайнеру — через {settings.reminders.designerDaysAfter} дня после.
                 </>
               ) : (
-                'Авто-напоминания об оплате отключены для этой сделки.'
+                'Авто-напоминания об оплате отключены для этого расчёта.'
               )}
             </p>
             {deal.reminderEnabled && (
