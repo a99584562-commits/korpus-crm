@@ -7,6 +7,9 @@ import {
   ChatCircleDots,
   BellRinging,
   PlugsConnected,
+  BookOpen,
+  CalendarBlank,
+  IdentificationCard,
   Plus,
   Trash,
   Check,
@@ -35,6 +38,7 @@ const TABS: { key: AdminTab; label: string; icon: typeof Palette }[] = [
   { key: 'materials', label: 'Каталог материалов', icon: Stack },
   { key: 'messages', label: 'Шаблоны сообщений', icon: ChatCircleDots },
   { key: 'reminders', label: 'Напоминания', icon: BellRinging },
+  { key: 'refs', label: 'Справочники', icon: BookOpen },
   { key: 'integrations', label: 'Интеграции', icon: PlugsConnected },
 ]
 
@@ -84,6 +88,7 @@ export function Admin() {
           {tab === 'materials' && <MaterialsTab {...props} />}
           {tab === 'messages' && <MessagesTab {...props} />}
           {tab === 'reminders' && <RemindersTab {...props} />}
+          {tab === 'refs' && <RefsTab {...props} />}
           {tab === 'integrations' && <IntegrationsTab {...props} />}
         </div>
       </div>
@@ -341,6 +346,96 @@ function RemindersTab({ settings, edit }: TabProps) {
         дизайнеру приходит контрольное сообщение.
       </div>
     </Card>
+  )
+}
+
+// ─────────── Справочники: праздники + коды подразделений ───────────
+function RefsTab({ settings, edit }: TabProps) {
+  const [newHoliday, setNewHoliday] = useState('')
+  const [newCode, setNewCode] = useState('')
+  const [newDept, setNewDept] = useState('')
+
+  const addHoliday = () => {
+    const v = newHoliday.trim()
+    if (!v || settings.holidays.includes(v)) return
+    edit((s) => { s.holidays = [...s.holidays, v].sort() })
+    setNewHoliday('')
+  }
+  const addDept = () => {
+    if (!newCode.trim() || !newDept.trim()) return
+    edit((s) => { s.passportDepts.push({ code: newCode.trim(), name: newDept.trim() }) })
+    setNewCode('')
+    setNewDept('')
+  }
+
+  return (
+    <div className="space-y-4">
+      <Card className="p-6">
+        <div className="flex items-center gap-2.5">
+          <CalendarBlank size={20} className="text-accent" />
+          <h3 className="text-[18px] text-ink">Праздники и нерабочие дни</h3>
+        </div>
+        <p className="mt-1 text-[13px] text-muted">Учитываются при расчёте даты готовности (срок изготовления — в рабочих днях).</p>
+        <div className="mt-4 flex flex-wrap gap-1.5">
+          {settings.holidays.map((h, i) => (
+            <span key={h + i} className="flex items-center gap-1.5 rounded-full bg-tray/60 py-1.5 pl-3 pr-1.5 text-[12.5px] text-ink-soft nums">
+              {new Date(h).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+              <button
+                onClick={() => edit((s) => { s.holidays = s.holidays.filter((x) => x !== h) })}
+                className="flex h-5 w-5 items-center justify-center rounded-full text-muted transition-colors hover:bg-danger-soft hover:text-danger"
+              >
+                <X size={12} weight="bold" />
+              </button>
+            </span>
+          ))}
+          {settings.holidays.length === 0 && <span className="text-[13px] text-muted">Список пуст</span>}
+        </div>
+        <div className="mt-4 flex gap-2">
+          <Input type="date" value={newHoliday} onChange={(e) => setNewHoliday(e.target.value)} className="max-w-[190px]" />
+          <Btn size="sm" variant="soft" leading={<Plus size={15} weight="bold" />} onClick={addHoliday}>
+            Добавить
+          </Btn>
+        </div>
+      </Card>
+
+      <Card className="p-6">
+        <div className="flex items-center gap-2.5">
+          <IdentificationCard size={20} className="text-accent" />
+          <h3 className="text-[18px] text-ink">Коды подразделений (паспорт)</h3>
+        </div>
+        <p className="mt-1 text-[13px] text-muted">«Кем выдан» подставляется автоматически по коду в карточке заказчика-физлица.</p>
+        <div className="mt-4 space-y-1.5">
+          {settings.passportDepts.map((p, i) => (
+            <div key={p.code + i} className="flex items-center gap-2 rounded-xl px-1 py-0.5 transition-colors hover:bg-tray/40">
+              <input
+                value={p.code}
+                onChange={(e) => edit((s) => { s.passportDepts[i].code = e.target.value })}
+                className="w-24 rounded-lg bg-tray/50 px-2.5 py-1.5 text-center text-[12.5px] font-medium text-ink outline-none nums"
+              />
+              <input
+                value={p.name}
+                onChange={(e) => edit((s) => { s.passportDepts[i].name = e.target.value })}
+                className="min-w-0 flex-1 rounded-lg bg-transparent px-2 py-1.5 text-[13px] text-ink-soft outline-none"
+              />
+              <IconBtn className="h-8 w-8" title="Удалить" onClick={() => edit((s) => { s.passportDepts = s.passportDepts.filter((_, j) => j !== i) })}>
+                <Trash size={15} />
+              </IconBtn>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <div className="w-28 shrink-0">
+            <Input value={newCode} onChange={(e) => setNewCode(e.target.value)} placeholder="770-001" className="text-center nums" />
+          </div>
+          <div className="min-w-[180px] flex-1">
+            <Input value={newDept} onChange={(e) => setNewDept(e.target.value)} placeholder="Кем выдан" />
+          </div>
+          <Btn size="sm" variant="soft" leading={<Plus size={15} weight="bold" />} onClick={addDept}>
+            Добавить
+          </Btn>
+        </div>
+      </Card>
+    </div>
   )
 }
 

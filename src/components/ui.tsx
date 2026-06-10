@@ -189,13 +189,16 @@ export function NumField({
   suffix,
   className = '',
   align = 'left',
+  compact = false,
 }: {
   value: number
   onChange: (n: number) => void
   suffix?: string
   className?: string
   align?: 'left' | 'right'
+  compact?: boolean
 }) {
+  const pad = compact ? `px-2 py-1.5 text-[13px] ${suffix ? 'pr-7' : ''}` : suffix ? 'pr-9' : ''
   return (
     <div className={`relative ${className}`}>
       <input
@@ -206,9 +209,11 @@ export function NumField({
           const n = parseFloat(e.target.value.replace(',', '.').replace(/[^\d.]/g, ''))
           onChange(isNaN(n) ? 0 : n)
         }}
-        className={`${inputCls} nums ${align === 'right' ? 'text-right' : ''} ${suffix ? 'pr-9' : ''}`}
+        className={`${inputCls} nums ${align === 'right' ? 'text-right' : ''} ${pad}`}
       />
-      {suffix && <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted">{suffix}</span>}
+      {suffix && (
+        <span className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-xs text-muted ${compact ? 'right-2' : 'right-3'}`}>{suffix}</span>
+      )}
     </div>
   )
 }

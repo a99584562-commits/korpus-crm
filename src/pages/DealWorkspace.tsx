@@ -219,13 +219,26 @@ export function DealWorkspace({ id }: { id: string }) {
             <p className="mt-2.5 text-[12.5px] leading-relaxed text-muted">
               {deal.reminderEnabled ? (
                 <>
-                  Клиенту — за <b className="text-ink-soft">{settings.reminders.clientDaysBefore} дня</b> до платежа, в{' '}
-                  {settings.reminders.hour}:00. Дизайнеру — через {settings.reminders.designerDaysAfter} дня после.
+                  Клиенту — за <b className="text-ink-soft">{settings.reminders.clientDaysBefore} дня</b> до платежа.
+                  Дизайнеру — через {settings.reminders.designerDaysAfter} дня после.
                 </>
               ) : (
                 'Авто-напоминания об оплате отключены для этой сделки.'
               )}
             </p>
+            {deal.reminderEnabled && (
+              <div className="mt-3 flex items-center justify-between gap-3 border-t border-line pt-3">
+                <span className="text-[12.5px] text-muted">Час отправки</span>
+                <NumField
+                  compact
+                  className="w-20"
+                  value={deal.reminderHour}
+                  onChange={(n) => editDeal(deal.id, (d) => { d.reminderHour = Math.max(0, Math.min(23, Math.round(n))) })}
+                  suffix=":00"
+                  align="right"
+                />
+              </div>
+            )}
           </Card>
         </div>
       </div>
@@ -253,7 +266,7 @@ function SmetaRow({ deal, variantId, it, cat, editDeal }: { deal: Deal; variantI
     })
   const isEdge = cat?.kind === 'edge'
   return (
-    <div className="grid grid-cols-2 items-center gap-2 rounded-2xl px-2.5 py-2 transition-colors hover:bg-tray/40 sm:grid-cols-[1.8fr_0.7fr_0.8fr_0.8fr_0.9fr_auto] sm:gap-3">
+    <div className="grid grid-cols-2 items-center gap-2 rounded-2xl px-2.5 py-2 transition-colors hover:bg-tray/40 sm:grid-cols-[1.6fr_0.95fr_0.8fr_0.8fr_0.95fr_auto] sm:gap-2.5">
       <div className="col-span-2 sm:col-span-1">
         <input
           value={it.name}
@@ -283,11 +296,11 @@ function SmetaRow({ deal, variantId, it, cat, editDeal }: { deal: Deal; variantI
         </div>
       </div>
       <div className="flex items-center gap-1">
-        <NumField value={it.qty} onChange={(n) => upd((x) => { x.qty = n })} align="right" className="flex-1" />
-        <span className="w-9 shrink-0 text-[11px] text-muted">{it.unit}</span>
+        <NumField compact value={it.qty} onChange={(n) => upd((x) => { x.qty = n })} align="right" className="min-w-0 flex-1" />
+        <span className="w-8 shrink-0 text-[11px] text-muted">{it.unit}</span>
       </div>
-      <NumField value={it.price} onChange={(n) => upd((x) => { x.price = n })} align="right" />
-      <NumField value={it.cost} onChange={(n) => upd((x) => { x.cost = n })} align="right" />
+      <NumField compact value={it.price} onChange={(n) => upd((x) => { x.price = n })} align="right" />
+      <NumField compact value={it.cost} onChange={(n) => upd((x) => { x.cost = n })} align="right" />
       <div className="text-right text-[14px] font-semibold text-ink nums">{fmtRub(itemSum(it))}</div>
       <IconBtn
         className="h-8 w-8 justify-self-end"
@@ -433,7 +446,7 @@ function SmetaTab({ deal, editDeal }: { deal: Deal; editDeal: EditFn }) {
       )}
 
       <Card className="overflow-hidden">
-        <div className="hidden grid-cols-[1.8fr_0.7fr_0.8fr_0.8fr_0.9fr_auto] gap-3 px-5 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-muted sm:grid">
+        <div className="hidden grid-cols-[1.6fr_0.95fr_0.8fr_0.8fr_0.95fr_auto] gap-2.5 px-5 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-muted sm:grid">
           <span>Позиция</span>
           <span className="text-right">Кол-во</span>
           <span className="text-right">Цена</span>
@@ -500,9 +513,9 @@ function CommercialBlock({ deal, variantId, editDeal }: { deal: Deal; variantId:
   return (
     <Card className="p-5 sm:p-6">
       <h3 className="text-[16px] text-ink">Коммерческие условия</h3>
-      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-3">
         <div className="rounded-2xl bg-tray/35 p-4 ring-1 ring-line">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             <span className="text-[13.5px] font-medium text-ink">Доставка и установка</span>
             <Toggle checked={variant.delivery.enabled} onChange={(v) => editVar((vr) => { vr.delivery.enabled = v })} />
           </div>
@@ -511,7 +524,7 @@ function CommercialBlock({ deal, variantId, editDeal }: { deal: Deal; variantId:
               <NumField value={variant.delivery.amount} onChange={(n) => editVar((vr) => { vr.delivery.amount = n })} suffix="₽" align="right" />
             </div>
           ) : (
-            <p className="mt-2 text-[12px] text-muted">Самовывоз — без доставки и монтажа</p>
+            <p className="mt-3 text-[12px] leading-relaxed text-muted">Самовывоз — без доставки и монтажа</p>
           )}
         </div>
         <div className="rounded-2xl bg-tray/35 p-4 ring-1 ring-line">
@@ -525,6 +538,21 @@ function CommercialBlock({ deal, variantId, editDeal }: { deal: Deal; variantId:
                 { value: 'transfer', label: 'Перевод' },
               ]}
             />
+          </div>
+        </div>
+        <div className="rounded-2xl bg-tray/35 p-4 ring-1 ring-line">
+          <span className="text-[13.5px] font-medium text-ink">Срок изготовления</span>
+          <div className="mt-3 flex items-center gap-2.5">
+            <NumField
+              className="w-24"
+              value={deal.productionDays}
+              onChange={(n) => editDeal(deal.id, (d) => { d.productionDays = Math.max(0, Math.round(n)) })}
+              suffix="дн."
+              align="right"
+            />
+            <span className="text-[12px] leading-snug text-muted">
+              рабочих · готовность<br />~ {fmtDateShort(ready)}
+            </span>
           </div>
         </div>
       </div>
@@ -545,7 +573,7 @@ function CommercialBlock({ deal, variantId, editDeal }: { deal: Deal; variantId:
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
         <span className="text-[13px] text-muted">
-          Себестоимость {fmtRub(variantCost(variant))} · маржа <b className="text-positive">{variantMargin(variant).toFixed(1)}%</b> · готовность ~ {fmtDateShort(ready)}
+          Себестоимость {fmtRub(variantCost(variant))} · маржа <b className="text-positive">{variantMargin(variant).toFixed(1)}%</b>
         </span>
         <div className="text-right">
           <p className="text-[12px] text-muted">Итого по варианту</p>
@@ -569,14 +597,23 @@ function ClientTab({ deal, editDeal }: { deal: Deal; editDeal: EditFn }) {
   const set = (m: (d: Deal) => void) => editDeal(deal.id, m)
   return (
     <Card className="p-5 sm:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <Segmented<PartyType> value={c.type} onChange={(v) => set((d) => { d.client.type = v })} options={PARTY_OPTS} />
-        <Field label="" className="w-56">
+      <Segmented<PartyType> value={c.type} onChange={(v) => set((d) => { d.client.type = v })} options={PARTY_OPTS} />
+
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <Field label="№ договора">
+          <Input value={deal.number} onChange={(e) => set((d) => { d.number = e.target.value })} />
+        </Field>
+        <Field label="Дата договора">
+          <Input type="date" value={deal.date} onChange={(e) => set((d) => { d.date = e.target.value })} />
+        </Field>
+        <Field label="Дизайнер">
           <Input value={deal.designer} onChange={(e) => set((d) => { d.designer = e.target.value })} placeholder="Дизайнер" />
         </Field>
       </div>
 
-      <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <Divider className="my-5" />
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label={c.type === 'individual' ? 'ФИО' : 'Наименование'} className="sm:col-span-2">
           <Input value={c.name} onChange={(e) => set((d) => { d.client.name = e.target.value })} placeholder="Иванов Иван Иванович" />
         </Field>

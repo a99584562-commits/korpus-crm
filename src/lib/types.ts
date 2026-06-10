@@ -183,7 +183,7 @@ export type Route =
   | { name: 'deal'; id: string }
   | { name: 'admin'; tab?: AdminTab }
 
-export type AdminTab = 'brand' | 'company' | 'blocks' | 'materials' | 'messages' | 'reminders' | 'integrations'
+export type AdminTab = 'brand' | 'company' | 'blocks' | 'materials' | 'messages' | 'reminders' | 'refs' | 'integrations'
 
 export interface Toast {
   id: string

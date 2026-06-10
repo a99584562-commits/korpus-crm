@@ -102,10 +102,10 @@ export function Dashboard() {
         <Card className="md:col-span-3">
           <div className="flex h-full flex-col p-6">
             <span className="flex items-center gap-2 text-[13px] font-medium text-muted">
-              <BellRinging size={18} className="text-warning" /> Напоминаний
+              <BellRinging size={18} className="text-warning" /> Напоминаний к отправке
             </span>
             <p className="mt-4 text-[44px] leading-none text-ink nums" style={{ fontFamily: 'var(--font-display)' }}>
-              {dueSoon}
+              {dueCount}
             </p>
             <p className="mt-auto pt-5 text-[12px] leading-relaxed text-muted">
               авто-контроль оплат включён для {dueSoon} сделок

@@ -103,6 +103,10 @@ export function computeReminders(deals: Deal[], settings: Settings, today: Date 
   const out: ReminderItem[] = []
   for (const d of deals) {
     if (!d.reminderEnabled || d.archived) continue
+    // Лимит из оригинала (F152): клиенту не напоминаем, если уже оплачено
+    // достаточно «для запуска в работу». Дизайнеру контроль идёт всегда.
+    const startLimit = (dealRevenue(d) * settings.commercial.startPercent) / 100
+    const clientMuted = dealPaid(d) >= startLimit && startLimit > 0
     for (const p of d.payments) {
       if (p.paid || !(p.amount > 0)) continue
       const base = {
@@ -114,8 +118,10 @@ export function computeReminders(deals: Deal[], settings: Settings, today: Date 
         amount: p.amount,
         paymentDate: p.date,
       }
-      const clientTrig = shiftDays(p.date, -settings.reminders.clientDaysBefore)
-      out.push({ ...base, kind: 'client', triggerDate: clientTrig, status: p.clientReminded ? 'sent' : clientTrig <= t ? 'due' : 'scheduled' })
+      if (!clientMuted) {
+        const clientTrig = shiftDays(p.date, -settings.reminders.clientDaysBefore)
+        out.push({ ...base, kind: 'client', triggerDate: clientTrig, status: p.clientReminded ? 'sent' : clientTrig <= t ? 'due' : 'scheduled' })
+      }
       const desTrig = shiftDays(p.date, settings.reminders.designerDaysAfter)
       out.push({ ...base, kind: 'designer', triggerDate: desTrig, status: p.designerChecked ? 'sent' : desTrig <= t ? 'due' : 'scheduled' })
     }
